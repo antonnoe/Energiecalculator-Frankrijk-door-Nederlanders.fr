@@ -377,6 +377,4 @@ function App() {
 }
 
 ReactDOM.createRoot(document.getElementById('app')).render(<App />);
-  </script>
-</body>
-</html>
+  
