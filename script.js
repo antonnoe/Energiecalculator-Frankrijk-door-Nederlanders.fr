@@ -193,7 +193,7 @@ function App() {
     }, [ zone, setpoint, wallA, wallU, roofA, roofU, floorA, floorU, winA, winU, volume, ach, warmupPct, userPrices, mainType, mainScop, mainEta, auxType, auxSharePreset, auxShareCustom, auxScop, auxEta, pvKwp, pvSelfUse, dhwType, dhwScop, dhwEta, showers, litersPer, appls, evKmWeek, evKwh100, evLoss, poolHas, poolVol, poolTargetT, poolSeason, poolHeatType, poolHpScop, poolEta, poolPumpW, poolPumpH, poolCover, poolWind ]);
     
     // This guard clause prevents rendering before the first calculation is complete.
-    if (!results) {
+    if (!results || !results.verbruik || !results.inputs) {
       return <div className="p-8 text-center text-gray-500">Calculator wordt geladen...</div>;
     }
 
@@ -205,28 +205,34 @@ function App() {
         </div>
     );
 
-    const PdfContent = () => (
-      <div id="pdf-summary" className="bg-white text-black p-4">
-          <h2 className="text-xl font-bold mb-4 text-black">Samenvatting Energiecalculator</h2>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              <div className="col-span-2 border-t pt-2 space-y-1">
-                  <h3 className="text-lg font-semibold text-black">Resultaten</h3>
-                  <p><b>Totale Jaarkosten:</b> {money(results.totalCost)}</p>
-                  <p><b>Warmtevraag:</b> {fmt.format(results.heatDemand)} kWh/jaar</p>
-                  <p><b>Netto Elektra van Net:</b> {fmt.format(results.verbruik.nettoElec)} kWh/jaar</p>
-              </div>
-              <div className="col-span-2 border-t pt-2 space-y-1">
-                  <h3 className="text-lg font-semibold text-black">Invoer</h3>
-                  <p><b>Klimaatzone:</b> {results.inputs ? (ZONES.find(z => z.id === results.inputs.zone)?.name || 'n/a') : 'n/a'}</p>
-                  <p><b>Hoofdverwarming:</b> {results.inputs ? (HEAT_MAIN_DEF.find(h => h.key === results.inputs.mainType)?.label || 'n/a') : 'n/a'}</p>
-              </div>
-              <div className="col-span-2 border-t pt-2">
-                  <h3 className="text-lg font-semibold text-black">Isolatie (U-waarden)</h3>
-                  <p>Muur: {results.inputs?.wallU} | Dak: {results.inputs?.roofU} | Vloer: {results.inputs?.floorU} | Ramen: {results.inputs?.winU}</p>
-              </div>
-          </div>
-      </div>
-    );
+    const PdfContent = () => {
+      // Safe guard as per your excellent suggestion
+      if (!results || !results.verbruik || !results.inputs) {
+        return null;
+      }
+      return (
+        <div id="pdf-summary" className="bg-white text-black p-4">
+            <h2 className="text-xl font-bold mb-4 text-black">Samenvatting Energiecalculator</h2>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                <div className="col-span-2 border-t pt-2 space-y-1">
+                    <h3 className="text-lg font-semibold text-black">Resultaten</h3>
+                    <p><b>Totale Jaarkosten:</b> {money(results.totalCost)}</p>
+                    <p><b>Warmtevraag:</b> {fmt.format(results.heatDemand)} kWh/jaar</p>
+                    <p><b>Netto Elektra van Net:</b> {fmt.format(results.verbruik.nettoElec)} kWh/jaar</p>
+                </div>
+                <div className="col-span-2 border-t pt-2 space-y-1">
+                    <h3 className="text-lg font-semibold text-black">Invoer</h3>
+                    <p><b>Klimaatzone:</b> {ZONES.find(z => z.id === results.inputs.zone)?.name || 'n/a'}</p>
+                    <p><b>Hoofdverwarming:</b> {HEAT_MAIN_DEF.find(h => h.key === results.inputs.mainType)?.label || 'n/a'}</p>
+                </div>
+                <div className="col-span-2 border-t pt-2">
+                    <h3 className="text-lg font-semibold text-black">Isolatie (U-waarden)</h3>
+                    <p>Muur: {num(results.inputs.wallU)} | Dak: {num(results.inputs.roofU)} | Vloer: {num(results.inputs.floorU)} | Ramen: {num(results.inputs.winU)}</p>
+                </div>
+            </div>
+        </div>
+      );
+    };
     
     return (
         <div>
