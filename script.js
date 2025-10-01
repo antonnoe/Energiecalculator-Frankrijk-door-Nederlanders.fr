@@ -133,8 +133,8 @@ function App() {
         const mainInput = heatDemand * mainFrac / mainEff;
         const auxInput = auxDef.key === 'none' ? 0 : (heatDemand * auxFrac / auxEff);
         
-        const mainPriceKey = mainDef ? HEAT_MAIN_DEF.find(h=>h.key===mainDef.key)?.priceKey : null;
-        const auxPriceKey = auxDef ? HEAT_AUX_DEF.find(h=>h.key===auxDef.key)?.priceKey : null;
+        const mainPriceKey = mainDef?.priceKey;
+        const auxPriceKey = auxDef?.priceKey;
 
         const mainCost = (pricesKwh[mainPriceKey] || 0) * mainInput;
         const auxCost = (pricesKwh[auxPriceKey] || 0) * auxInput;
@@ -146,7 +146,7 @@ function App() {
         const dhwDef = DHW_TYPES_DEF.find(d => d.key === dhwType);
         const dhwEff = (dhwDef?.label.includes('SCOP')) ? num(dhwScop, 1) : ((dhwDef?.label.includes('η')) ? num(dhwEta, 0.1) : 1);
         const dhwInput = dhwThermal / dhwEff;
-        const dhwPriceKey = dhwDef ? DHW_TYPES_DEF.find(h=>h.key===dhwDef.key)?.priceKey : null;
+        const dhwPriceKey = dhwDef?.priceKey;
         const dhwCost = (pricesKwh[dhwPriceKey] || 0) * dhwInput;
         
         const applKwh = appls.reduce((s, a) => s + (a.on ? num(a.kwh, 0) : 0), 0);
@@ -164,7 +164,7 @@ function App() {
             const def = POOL_HEAT_DEF.find(h => h.key === poolHeatType);
             const eff = (def?.label.includes('SCOP')) ? num(poolHpScop, 1) : ((def?.label.includes('η')) ? num(poolEta, 0.1) : 1);
             const input = def.key === 'none' ? 0 : (thermal / eff);
-            const poolPriceKey = def ? POOL_HEAT_DEF.find(h=>h.key===def.key)?.priceKey : null;
+            const poolPriceKey = def?.priceKey;
             const elecUse = pumpKwh + (poolPriceKey === 'elec' ? input : 0);
             const gasUse = (poolPriceKey === 'gas' ? input : 0);
             const poolCost = elecUse * (pricesKwh.elec || 0) + gasUse * (pricesKwh.gas || 0);
@@ -192,8 +192,7 @@ function App() {
         };
     }, [ zone, setpoint, wallA, wallU, roofA, roofU, floorA, floorU, winA, winU, volume, ach, warmupPct, userPrices, mainType, mainScop, mainEta, auxType, auxSharePreset, auxShareCustom, auxScop, auxEta, pvKwp, pvSelfUse, dhwType, dhwScop, dhwEta, showers, litersPer, appls, evKmWeek, evKwh100, evLoss, poolHas, poolVol, poolTargetT, poolSeason, poolHeatType, poolHpScop, poolEta, poolPumpW, poolPumpH, poolCover, poolWind ]);
     
-    // This guard clause prevents rendering before the first calculation is complete.
-    if (!results || !results.verbruik || !results.inputs) {
+    if (!results) {
       return <div className="p-8 text-center text-gray-500">Calculator wordt geladen...</div>;
     }
 
@@ -206,9 +205,8 @@ function App() {
     );
 
     const PdfContent = () => {
-      // Safe guard as per your excellent suggestion
       if (!results || !results.verbruik || !results.inputs) {
-        return null;
+        return null; 
       }
       return (
         <div id="pdf-summary" className="bg-white text-black p-4">
