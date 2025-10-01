@@ -7,10 +7,10 @@ const DEFAULT_APPLIANCES = [ { key: 'fridge', label: 'Koelkast/vriezer', kwh: 25
 const PRICE_DEFAULTS_USER = { elec: 0.25, gas: 1.20, fioul: 1.15, pellet: 0.60, wood: 85, propaan: 1.80, petroleum: 2.00 };
 const ENERGY_UNITS = { elec: '€/kWh', gas: '€/m³', fioul: '€/L', pellet: '€/kg', wood: '€/stère', propaan: '€/L', petroleum: '€/L' };
 const KWH_CONVERSION = { elec: 1, gas: 10, fioul: 10, pellet: 5, wood: 1800, propaan: 7.1, petroleum: 10 };
-const HEAT_MAIN_DEF = [ { key: 'elec', label: 'Elektrisch (direct)', priceKey: 'elec' }, { key: 'hp', label: 'Warmtepomp (SCOP)', priceKey: 'elec' }, { key: 'gas', label: 'Aardgas (ketel η)', priceKey: 'gas' }, { key: 'fioul', label: 'Fioul/mazout (η)', priceKey: 'fioul' }, { key: 'pellet', label: 'Houtpellets‑CV (η)', priceKey: 'pellet' }, { key: 'wood', label: 'Hout‑CV (η)', priceKey: 'wood' }, ];
-const HEAT_AUX_DEF = [ { key: 'none', label: 'Geen bijverwarming', priceKey: null }, { key: 'inverter', label: 'Inverter‑airco (SCOP)', priceKey: 'elec' }, { key: 'elec', label: 'Elektrisch (direct)', priceKey: 'elec' }, { key: 'pellet', label: 'Houtpelletkachel (η)', priceKey: 'pellet' }, { key: 'wood', label: 'Houtkachel (η)', priceKey: 'wood' }, { key: 'petroleum', label: 'Petroleumkachel (η)', priceKey: 'petroleum' }, ];
-const DHW_TYPES_DEF = [ { key: 'elec', label: 'Boiler elektrisch', priceKey: 'elec' }, { key: 'gas', label: 'Gasgeiser/ketel (η)', priceKey: 'gas' }, { key: 'hp', label: 'WP‑boiler (SCOP)', priceKey: 'elec' }, { key: 'solar', label: 'Zonneboiler', priceKey: 'elec' }, ];
-const POOL_HEAT_DEF = [ { key: 'none', label: 'Geen verwarming', priceKey: null }, { key: 'elec', label: 'Elektrisch', priceKey: 'elec' }, { key: 'gas', label: 'Gas (η)', priceKey: 'gas' }, { key: 'hp', label: 'Warmtepomp (SCOP)', priceKey: 'elec' }, ];
+const HEAT_MAIN_DEF = [ { key: 'elec', label: 'Elektrisch (direct)' }, { key: 'hp', label: 'Warmtepomp (SCOP)' }, { key: 'gas', label: 'Aardgas (ketel η)' }, { key: 'fioul', label: 'Fioul/mazout (η)' }, { key: 'pellet', label: 'Houtpellets‑CV (η)' }, { key: 'wood', label: 'Hout‑CV (η)' }, ];
+const HEAT_AUX_DEF = [ { key: 'none', label: 'Geen bijverwarming' }, { key: 'inverter', label: 'Inverter‑airco (SCOP)' }, { key: 'elec', label: 'Elektrisch (direct)' }, { key: 'pellet', label: 'Houtpelletkachel (η)' }, { key: 'wood', label: 'Houtkachel (η)' }, { key: 'petroleum', label: 'Petroleumkachel (η)' }, ];
+const DHW_TYPES_DEF = [ { key: 'elec', label: 'Boiler elektrisch' }, { key: 'gas', label: 'Gasgeiser/ketel (η)' }, { key: 'hp', label: 'WP‑boiler (SCOP)' }, { key: 'solar', label: 'Zonneboiler' }, ];
+const POOL_HEAT_DEF = [ { key: 'none', label: 'Geen verwarming' }, { key: 'elec', label: 'Elektrisch' }, { key: 'gas', label: 'Gas (η)' }, { key: 'hp', label: 'Warmtepomp (SCOP)' }, ];
 const U_PRESETS = { wall: {'Ongeïsoleerd (~1975)': 2.0, 'Matig (~5cm)': 0.8, 'Goed (~10cm)': 0.4, 'Zeer goed (15cm+)': 0.25}, roof: {'Ongeïsoleerd': 3.0, 'Matig (~10cm)': 0.5, 'Goed (~20cm)': 0.25, 'Zeer goed (30cm+)': 0.15}, floor: {'Op zand': 2.2, 'Kruipruimte': 1.2, 'Matig geïsoleerd': 0.8, 'Goed geïsoleerd': 0.3}, win: {'Enkel glas': 5.5, 'Oud dubbelglas': 2.8, 'Modern HR(+)': 1.6, 'Triple HR++': 1.0} };
 const FAQ_CONTENT = [ { q: "Hoe betrouwbaar is de uitkomst?", a: "De tool gebruikt fysisch onderbouwde formules en realistische default-waarden. Het blijft een benadering, geen officieel DPE/audit. Nauwkeurigheid stijgt met goede invoer." }, { q: "Wat betekenen U-waarde, R-waarde en Σ(U·A)?", a: "<b>U-waarde</b> (W/m²K): warmtedoorgang; hoe lager, hoe beter. <b>R-waarde</b> (m²K/W): warmteweerstand; hoe hoger, hoe beter. Het transmissieverlies wordt geschat via <b>Htr = Σ(U · A)</b>, in W/K." }, { q: "Wat is n (ACH) en Hvent?", a: "<b>n (ACH)</b> = luchtwisselingen per uur. Ventilatieverlies: <b>Hvent = 0,34 · n · V</b> (W/K), met V het verwarmde volume in m³. De factor 0,34 is een fysische constante voor lucht." }, { q: "Wat zijn HDD (graaddagen)?", a: "<b>HDD</b> (Heating Degree Days) is een maat voor de jaarlijkse stookbehoefte. Jaarwarmtevraag: <b>E ≈ H · HDD · 24 / 1000</b> (in kWh/j)." }, { q: "Wat is SCOP/COP?", a: "<b>SCOP</b> (Seasonal COP) is de seizoensprestatie van een warmtepomp. Elektriciteitsvraag ≈ warmtevraag / SCOP. Bij vorst daalt de momentane COP." } ];
 const ICONS = { building: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M3.75 21.75a.75.75 0 01.75-.75h15a.75.75 0 010 1.5h-15a.75.75 0 01-.75-.75zM4.5 9.75a.75.75 0 01.75-.75h13.5a.75.75 0 010 1.5H5.25a.75.75 0 01-.75-.75zM4.5 15.75a.75.75 0 01.75-.75h13.5a.75.75 0 010 1.5H5.25a.75.75 0 01-.75-.75zM8.25 2.25a.75.75 0 01.75.75v16.5a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM15.75 2.25a.75.75 0 01.75.75v16.5a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75z"></path></svg>`, fire: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M15.362 4.362a1.75 1.75 0 012.474 0 1.75 1.75 0 010 2.474l-5.333 5.333-3.724-3.724a.75.75 0 011.06-1.06l2.664 2.664 5.333-5.333a.75.75 0 01-1.06-1.06l-5.333 5.333-2.664-2.664a1.75 1.75 0 010-2.474 1.75 1.75 0 012.474 0l2.664 2.664 5.333-5.333z"></path></svg>`, bolt: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.25 4.5h13.5c.828 0 1.5.672 1.5 1.5v3.75c0 .828-.672 1.5-1.5 1.5H5.25c-.828 0-1.5-.672-1.5-1.5V6c0-.828.672-1.5 1.5-1.5z"></path></svg>`, beaker: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M9.75 21.75a.75.75 0 01-.75-.75V11.25a.75.75 0 011.5 0v9.75a.75.75 0 01-.75-.75zM14.25 21.75a.75.75 0 01-.75-.75V11.25a.75.75 0 011.5 0v9.75a.75.75 0 01-.75-.75zM12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm0 18a8.25 8.25 0 100-16.5 8.25 8.25 0 000 16.5z"></path></svg>`, currency: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12 1.5a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 1.5zM18.75 6a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM12 21a.75.75 0 01-.75-.75v-1.5a.75.75 0 011.5 0v1.5A.75.75 0 0112 21zM5.25 6a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5z"></path></svg>`, faq: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"></path></svg>`, debug: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M11.42 15.17L17.17 20.92M5.58 11.42L11.33 17.17M12.75 5.58L18.5 11.33M6.92 6.92L12.67 12.67M3.08 15.17L8.83 20.92M9.75 3.08L15.5 8.83M16.58 5.58L22.33 11.33M11.33 1.25L17.08 7M18.5 1.25L24.25 7"></path></svg>` };
@@ -132,12 +132,8 @@ function App() {
         const auxEff = (auxDef?.label.includes('SCOP')) ? num(auxScop, 1) : ((auxDef?.label.includes('η')) ? num(auxEta, 0.1) : 1);
         const mainInput = heatDemand * mainFrac / mainEff;
         const auxInput = auxDef.key === 'none' ? 0 : (heatDemand * auxFrac / auxEff);
-        
-        const mainPriceKey = mainDef ? HEAT_MAIN_DEF.find(h=>h.key===mainDef.key)?.priceKey : null;
-        const auxPriceKey = auxDef ? HEAT_AUX_DEF.find(h=>h.key===auxDef.key)?.priceKey : null;
-
-        const mainCost = (pricesKwh[mainPriceKey] || 0) * mainInput;
-        const auxCost = (pricesKwh[auxPriceKey] || 0) * auxInput;
+        const mainCost = (pricesKwh[mainDef?.priceKey] || 0) * mainInput;
+        const auxCost = (pricesKwh[auxDef?.priceKey] || 0) * auxInput;
 
         const pvYield = num(pvKwp) > 0 ? num(pvKwp) * (PV_YIELD[zone] || 1150) : 0;
         const pvSelf = pvYield * (num(pvSelfUse) / 100);
@@ -146,8 +142,7 @@ function App() {
         const dhwDef = DHW_TYPES_DEF.find(d => d.key === dhwType);
         const dhwEff = (dhwDef?.label.includes('SCOP')) ? num(dhwScop, 1) : ((dhwDef?.label.includes('η')) ? num(dhwEta, 0.1) : 1);
         const dhwInput = dhwThermal / dhwEff;
-        const dhwPriceKey = dhwDef ? DHW_TYPES_DEF.find(h=>h.key===dhwDef.key)?.priceKey : null;
-        const dhwCost = (pricesKwh[dhwPriceKey] || 0) * dhwInput;
+        const dhwCost = (pricesKwh[dhwDef?.priceKey] || 0) * dhwInput;
         
         const applKwh = appls.reduce((s, a) => s + (a.on ? num(a.kwh, 0) : 0), 0);
         const evKwhYear = (num(evKmWeek) * 52) * (num(evKwh100) / 100) * (1 + num(evLoss) / 100);
@@ -164,22 +159,21 @@ function App() {
             const def = POOL_HEAT_DEF.find(h => h.key === poolHeatType);
             const eff = (def?.label.includes('SCOP')) ? num(poolHpScop, 1) : ((def?.label.includes('η')) ? num(poolEta, 0.1) : 1);
             const input = def.key === 'none' ? 0 : (thermal / eff);
-            const poolPriceKey = def ? POOL_HEAT_DEF.find(h=>h.key===def.key)?.priceKey : null;
-            const elecUse = pumpKwh + (poolPriceKey === 'elec' ? input : 0);
-            const gasUse = (poolPriceKey === 'gas' ? input : 0);
+            const elecUse = pumpKwh + (def?.priceKey === 'elec' ? input : 0);
+            const gasUse = (def?.priceKey === 'gas' ? input : 0);
             const poolCost = elecUse * (pricesKwh.elec || 0) + gasUse * (pricesKwh.gas || 0);
             pool = { kwh: pumpKwh + input, cost: poolCost, elec: elecUse, gas: gasUse };
         }
         
-        const elecHeatingInput = (mainPriceKey === 'elec' ? mainInput : 0) + (auxPriceKey === 'elec' ? auxInput : 0);
-        const elecDhwInput = (dhwPriceKey === 'elec') ? dhwInput : 0;
+        const elecHeatingInput = (mainDef?.priceKey === 'elec' ? mainInput : 0) + (auxDef?.priceKey === 'elec' ? auxInput : 0);
+        const elecDhwInput = (dhwDef?.priceKey === 'elec') ? dhwInput : 0;
         const elecTotalGross = elecHeatingInput + elecDhwInput + applKwh + evKwhYear + pool.elec;
         const elecNet = Math.max(0, elecTotalGross - pvSelf);
         const pvSelfValue = pvSelf * (pricesKwh.elec || 0);
 
-        const nonElecMainCost = mainPriceKey !== 'elec' ? mainCost : 0;
-        const nonElecAuxCost = auxPriceKey !== 'elec' ? auxCost : 0;
-        const nonElecDhwCost = dhwPriceKey !== 'elec' ? dhwCost : 0;
+        const nonElecMainCost = mainDef?.priceKey !== 'elec' ? mainCost : 0;
+        const nonElecAuxCost = auxDef?.priceKey !== 'elec' ? auxCost : 0;
+        const nonElecDhwCost = dhwDef?.priceKey !== 'elec' ? dhwCost : 0;
         
         const finalTotalCost = (elecNet * pricesKwh.elec) + nonElecMainCost + nonElecAuxCost + nonElecDhwCost + (pool.gas * (pricesKwh.gas || 0));
 
@@ -187,12 +181,11 @@ function App() {
             totalCost: finalTotalCost, perMonth: finalTotalCost / 12, heatDemand,
             costs: { verwarming: mainCost + auxCost, tapwater: dhwCost, apparaten: applKwh * pricesKwh.elec, ev: evKwhYear * pricesKwh.elec, zwembad: pool.cost, pvWaarde: -pvSelfValue },
             verbruik: { nettoElec: elecNet, brutoElec: elecTotalGross, pvEigen: pvSelf, warmte: mainInput + auxInput, tapwater: dhwInput, overig: applKwh + evKwhYear + pool.kwh },
-            debug: { heatDemand, mainFrac, auxFrac, mainEff, mainInput, auxInput, elecHeatingInput, elecTotalGross, pvSelf, elecNet, totalCost: finalTotalCost, UA, Vloss },
-            inputs: { zone, wallU, roofU, floorU, winU, mainType }
+            inputs: { zone, wallU, roofU, floorU, winU, mainType },
+            debug: { heatDemand, mainFrac, auxFrac, mainEff, mainInput, auxInput, elecHeatingInput, elecTotalGross, pvSelf, elecNet, totalCost: finalTotalCost, UA, Vloss }
         };
     }, [ zone, wallA, wallU, roofA, roofU, floorA, floorU, winA, winU, volume, ach, warmupPct, userPrices, mainType, mainScop, mainEta, auxType, auxSharePreset, auxShareCustom, auxScop, auxEta, pvKwp, pvSelfUse, dhwType, dhwScop, dhwEta, showers, litersPer, appls, evKmWeek, evKwh100, evLoss, poolHas, poolVol, poolTargetT, poolSeason, poolHeatType, poolHpScop, poolEta, poolPumpW, poolPumpH, poolCover, poolWind ]);
     
-    // This guard clause prevents rendering before the first calculation is complete.
     if (!results) {
       return <div className="p-8 text-center">Calculator wordt geladen...</div>;
     }
@@ -217,19 +210,19 @@ function App() {
               </div>
               <div className="col-span-2 border-t pt-2 space-y-1">
                   <h3 className="text-lg font-semibold text-black">Invoer</h3>
-                  <p><b>Klimaatzone:</b> {ZONES.find(z => z.id === results.inputs.zone)?.name || 'n/a'}</p>
-                  <p><b>Hoofdverwarming:</b> {HEAT_MAIN_DEF.find(h => h.key === results.inputs.mainType)?.label || 'n/a'}</p>
+                  <p><b>Klimaatzone:</b> {results.inputs ? (ZONES.find(z => z.id === results.inputs.zone)?.name || 'n/a') : 'n/a'}</p>
+                  <p><b>Hoofdverwarming:</b> {results.inputs ? (HEAT_MAIN_DEF.find(h => h.key === results.inputs.mainType)?.label || 'n/a') : 'n/a'}</p>
               </div>
               <div className="col-span-2 border-t pt-2">
                   <h3 className="text-lg font-semibold text-black">Isolatie (U-waarden)</h3>
-                  <p>Muur: {num(results.inputs.wallU)} | Dak: {num(results.inputs.roofU)} | Vloer: {num(results.inputs.floorU)} | Ramen: {num(results.inputs.winU)}</p>
+                  <p>Muur: {results.inputs?.wallU} | Dak: {results.inputs?.roofU} | Vloer: {results.inputs?.floorU} | Ramen: {results.inputs?.winU}</p>
               </div>
           </div>
       </div>
     );
     
     return (
-        <div className="pb-24">
+        <div>
             <header className="bg-white border-b border-gray-200 p-4 no-print">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                   <div>
@@ -426,7 +419,9 @@ function App() {
               </div>
             </div>
             
-            <PdfContent />
+            <div className="hidden print:block">
+              <PdfContent />
+            </div>
         </div>
     );
 }
