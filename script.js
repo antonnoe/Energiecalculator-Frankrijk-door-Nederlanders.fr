@@ -20,7 +20,7 @@ function App() {
     // --- Helpers ---
     const fmt = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 0 });
     const money = (x) => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(x);
-    const num = (v, d = 0) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : d; };
+    const num = (v, d=0) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : d; };
 
     // --- State ---
     const [zone, setZone] = useState('paris');
@@ -86,12 +86,8 @@ function App() {
         const auxEff = (auxDef?.label.includes('SCOP')) ? num(auxScop, 1) : ((auxDef?.label.includes('η')) ? num(auxEta, 0.1) : 1);
         const mainInput = heatDemand * mainFrac / mainEff;
         const auxInput = auxDef.key === 'none' ? 0 : (heatDemand * auxFrac / auxEff);
-        
-        const mainPriceKey = mainDef ? HEAT_MAIN_DEF.find(h=>h.key===mainDef.key)?.priceKey : null;
-        const auxPriceKey = auxDef ? HEAT_AUX_DEF.find(h=>h.key===auxDef.key)?.priceKey : null;
-
-        const mainCost = (pricesKwh[mainPriceKey] || 0) * mainInput;
-        const auxCost = (pricesKwh[auxPriceKey] || 0) * auxInput;
+        const mainCost = (pricesKwh[mainDef?.priceKey] || 0) * mainInput;
+        const auxCost = (pricesKwh[auxDef?.priceKey] || 0) * auxInput;
 
         const pvYield = num(pvKwp) > 0 ? num(pvKwp) * (PV_YIELD[zone] || 1150) : 0;
         const pvSelf = pvYield * (num(pvSelfUse) / 100);
@@ -100,8 +96,7 @@ function App() {
         const dhwDef = DHW_TYPES_DEF.find(d => d.key === dhwType);
         const dhwEff = (dhwDef?.label.includes('SCOP')) ? num(dhwScop, 1) : ((dhwDef?.label.includes('η')) ? num(dhwEta, 0.1) : 1);
         const dhwInput = dhwThermal / dhwEff;
-        const dhwPriceKey = dhwDef ? DHW_TYPES_DEF.find(h=>h.key===dhwDef.key)?.priceKey : null;
-        const dhwCost = (pricesKwh[dhwPriceKey] || 0) * dhwInput;
+        const dhwCost = (pricesKwh[dhwDef?.priceKey] || 0) * dhwInput;
         
         const applKwh = appls.reduce((s, a) => s + (a.on ? num(a.kwh, 0) : 0), 0);
         const evKwhYear = (num(evKmWeek) * 52) * (num(evKwh100) / 100) * (1 + num(evLoss) / 100);
@@ -118,22 +113,21 @@ function App() {
             const def = POOL_HEAT_DEF.find(h => h.key === poolHeatType);
             const eff = (def?.label.includes('SCOP')) ? num(poolHpScop, 1) : ((def?.label.includes('η')) ? num(poolEta, 0.1) : 1);
             const input = def.key === 'none' ? 0 : (thermal / eff);
-            const poolPriceKey = def ? POOL_HEAT_DEF.find(h=>h.key===def.key)?.priceKey : null;
-            const elecUse = pumpKwh + (poolPriceKey === 'elec' ? input : 0);
-            const gasUse = (poolPriceKey === 'gas' ? input : 0);
+            const elecUse = pumpKwh + (def?.priceKey === 'elec' ? input : 0);
+            const gasUse = (def?.priceKey === 'gas' ? input : 0);
             const poolCost = elecUse * (pricesKwh.elec || 0) + gasUse * (pricesKwh.gas || 0);
             pool = { kwh: pumpKwh + input, cost: poolCost, elec: elecUse, gas: gasUse };
         }
         
-        const elecHeatingInput = (mainPriceKey === 'elec' ? mainInput : 0) + (auxPriceKey === 'elec' ? auxInput : 0);
-        const elecDhwInput = (dhwPriceKey === 'elec') ? dhwInput : 0;
+        const elecHeatingInput = (mainDef?.priceKey === 'elec' ? mainInput : 0) + (auxDef?.priceKey === 'elec' ? auxInput : 0);
+        const elecDhwInput = (dhwDef?.priceKey === 'elec') ? dhwInput : 0;
         const elecTotalGross = elecHeatingInput + elecDhwInput + applKwh + evKwhYear + pool.elec;
         const elecNet = Math.max(0, elecTotalGross - pvSelf);
         const pvSelfValue = pvSelf * (pricesKwh.elec || 0);
 
-        const nonElecMainCost = mainPriceKey !== 'elec' ? mainCost : 0;
-        const nonElecAuxCost = auxPriceKey !== 'elec' ? auxCost : 0;
-        const nonElecDhwCost = dhwPriceKey !== 'elec' ? dhwCost : 0;
+        const nonElecMainCost = mainDef?.priceKey !== 'elec' ? mainCost : 0;
+        const nonElecAuxCost = auxDef?.priceKey !== 'elec' ? auxCost : 0;
+        const nonElecDhwCost = dhwDef?.priceKey !== 'elec' ? dhwCost : 0;
         
         const finalTotalCost = (elecNet * pricesKwh.elec) + nonElecMainCost + nonElecAuxCost + nonElecDhwCost + (pool.gas * (pricesKwh.gas || 0));
 
@@ -145,6 +139,7 @@ function App() {
         };
     }, [ zone, wallA, wallU, roofA, roofU, floorA, floorU, winA, winU, volume, ach, warmupPct, userPrices, mainType, mainScop, mainEta, auxType, auxSharePreset, auxShareCustom, auxScop, auxEta, pvKwp, pvSelfUse, dhwType, dhwScop, dhwEta, showers, litersPer, appls, evKmWeek, evKwh100, evLoss, poolHas, poolVol, poolTargetT, poolSeason, poolHeatType, poolHpScop, poolEta, poolPumpW, poolPumpH, poolCover, poolWind ]);
     
+    // --- Helper Components ---
     const SummaryCard = ({ title, value, unit, children }) => (
         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
             <div className="text-xs text-gray-600">{title}</div>
@@ -177,7 +172,7 @@ function App() {
     );
     
     return (
-        <div>
+        <div className="pb-24">
             <header className="bg-white border-b border-gray-200 p-4 no-print">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                   <div>
